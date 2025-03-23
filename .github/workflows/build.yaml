@@ -7,9 +7,9 @@ on:
   #  - cron: "0 18 * * *"
 
 env:
-  REMOTE_REPOSITORY: gtolog/openwrt-6.x
+  REMOTE_REPOSITORY: gtolog/openwrt-ipq
   # REMOTE_REPOSITORY: AgustinLorenzo/openwrt
-  REMOTE_BRANCH: kernel-6.12
+  REMOTE_BRANCH: 24.10-nss-re-cs-07
   # REMOTE_BRANCH: main_nss
   CONFIG_FILE: build.config
   # NSS_STATUS_PATCH: 999-add-nss-load-to-status.patch
