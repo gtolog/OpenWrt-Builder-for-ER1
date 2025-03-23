@@ -141,7 +141,7 @@ jobs:
         run: tar xf ipq60xx-images.tar
       
       - name: Get current date
-        run: echo "RELEASE_DATE=$(date +%F_%T)" >> $GITHUB_ENV
+        run: echo "RELEASE_DATE=$(date +%F)" >> $GITHUB_ENV
       
       - name: Create release
         uses: softprops/action-gh-release@v2
