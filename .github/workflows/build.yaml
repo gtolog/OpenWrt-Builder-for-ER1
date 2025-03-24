@@ -27,26 +27,6 @@ jobs:
     # if: needs.check_commits.outputs.new_commits == 'true' || needs.check_commits.outputs.nss_packages_repo_new_commits == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
-      # Cache the OpenWrt feeds
-      - name: Cache OpenWrt feeds
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.opkg
-            ./dl
-          key: ${{ runner.os }}-opkg-${{ hashFiles('feeds.conf.default') }}
-          restore-keys: |
-            ${{ runner.os }}-opkg-
-
-      # Cache the OpenWrt build directory
-      - name: Cache OpenWrt build directory
-        uses: actions/cache@v2
-        with:
-          path: ./build
-          key: ${{ runner.os }}-build-${{ hashFiles('feeds.conf.default') }}
-          restore-keys: |
-            ${{ runner.os }}-build-
-          
       - name: Free up disk space before installation
         run: |
           echo "Before cleanup:"
@@ -93,7 +73,27 @@ jobs:
           # Keep msd_lite inside extra-packages to maintain structure
           mv package/extra-packages/immortalwrt-packages/net/msd_lite package/extra-packages/
           rm -rf package/extra-packages/immortalwrt-packages
-      
+
+      # Cache the OpenWrt feeds
+      - name: Cache OpenWrt feeds
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.opkg
+            ./dl
+          key: ${{ runner.os }}-opkg-${{ hashFiles('feeds.conf.default') }}
+          restore-keys: |
+            ${{ runner.os }}-opkg-
+
+      # Cache the OpenWrt build directory
+      - name: Cache OpenWrt build directory
+        uses: actions/cache@v2
+        with:
+          path: ./build
+          key: ${{ runner.os }}-build-${{ hashFiles('feeds.conf.default') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+            
       - name: Update and install feeds
         run: |
           ./scripts/feeds update -a
