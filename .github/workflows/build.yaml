@@ -12,19 +12,42 @@ env:
   REMOTE_BRANCH: 24.10-nss-re-cs-07
   # REMOTE_BRANCH: main_nss
   CONFIG_FILE: build.config
-  # NSS_STATUS_PATCH: 999-add-nss-load-to-status.patch
   CUSTOM_FILES_PATH: files/
   RELEASE_PREFIX: openwrt-qualcommax-ipq60xx
-  # NSS_PACKAGES_REPOSITORY: qosmio/nss-packages
-  # NSS_PACKAGES_REPOSITORY_BRANCH: NSS-12.5-K6.x
+  NSS_PACKAGES_REPOSITORY: qosmio/nss-packages
+  NSS_PACKAGES_REPOSITORY_BRANCH: NSS-12.5-K6.x
   
   TZ: Asia/Shanghai
 
 jobs:
+  check_commits:
+    name: Check for new commits
+    runs-on: ubuntu-24.04
+    outputs:
+      new_commits: ${{ steps.check_new_commits.outputs.new_commits }}
+      latest_commit_sha: ${{ steps.check_new_commits.outputs.latest_commit_sha }}
+      nss_packages_repo_new_commits: ${{ steps.check_nss_packages_repo_new_commits.outputs.new_commits }}
+      nss_packages_repo_latest_commit_sha: ${{ steps.check_nss_packages_repo_new_commits.outputs.latest_commit_sha }}
+    steps:
+      - name: Check for new commits
+        id: check_new_commits
+        run: |
+          latest_commit_sha=$(curl -sL "https://api.github.com/repos/${{ env.REMOTE_REPOSITORY }}/commits?sha=${{ env.REMOTE_BRANCH }}&per_page=1" | jq -r '.[0].sha')
+          last_built_commit_sha=$(curl -sL "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.body' | grep -oP 'Build Commit: \K\w+' || echo '')
+          echo "new_commits=$([[ "$latest_commit_sha" != "$last_built_commit_sha" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          echo "latest_commit_sha=$latest_commit_sha" >> $GITHUB_OUTPUT
+      - name: Check for new commits in NSS Packages Repository
+        id: check_nss_packages_repo_new_commits
+        run: |
+          nss_packages_repo_latest_commit_sha=$(curl -sL "https://api.github.com/repos/${{ env.NSS_PACKAGES_REPOSITORY }}/commits?sha=${{ env.NSS_PACKAGES_REPOSITORY_BRANCH }}&per_page=1" | jq -r '.[0].sha')
+          nss_packages_repo_last_built_commit_sha=$(curl -sL "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.body' | grep -oP 'NSS Packages Commit: \K\w+' || echo '')
+          echo "new_commits=$([[ "$nss_packages_repo_latest_commit_sha" != "$nss_packages_repo_last_built_commit_sha" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          echo "latest_commit_sha=$nss_packages_repo_latest_commit_sha" >> $GITHUB_OUTPUT
+          
   build:
     name: Build OpenWrt
-    # needs: check_commits
-    # if: needs.check_commits.outputs.new_commits == 'true' || needs.check_commits.outputs.nss_packages_repo_new_commits == 'true' || github.event_name == 'workflow_dispatch'
+    needs: check_commits
+    if: needs.check_commits.outputs.new_commits == 'true' || needs.check_commits.outputs.nss_packages_repo_new_commits == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
       - name: Free up disk space before installation
@@ -81,7 +104,7 @@ jobs:
           path: |
             ~/.opkg
             ./dl
-          key: ${{ runner.os }}-opkg-${{ hashFiles('feeds.conf.default') }}
+          key: ${{ runner.os }}-opkg-${{ needs.check_commits.outputs.latest_commit_sha }}
           restore-keys: |
             ${{ runner.os }}-opkg-
 
@@ -90,7 +113,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ./build
-          key: ${{ runner.os }}-build-${{ hashFiles('feeds.conf.default') }}
+          key: ${{ runner.os }}-build-${{ needs.check_commits.outputs.latest_commit_sha }}
           restore-keys: |
             ${{ runner.os }}-build-
             
