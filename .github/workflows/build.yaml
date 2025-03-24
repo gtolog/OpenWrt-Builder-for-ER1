@@ -39,41 +39,41 @@ jobs:
           last_built_commit_sha=$(curl -sL "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.body' | grep -oP 'Build Commit: \K\w+' || echo '')
     
           # Print commit SHAs for debugging
-          echo "Latest commit sha from remote repository: ${{ latest_commit_sha }}"
-          echo "Last built commit sha from remote repository: ${{ last_built_commit_sha }}"
+          echo "Latest commit sha from remote repository: $latest_commit_sha"
+          echo "Last built commit sha from remote repository: $last_built_commit_sha"
     
           # Compare commit SHAs and set new_commits output
-          if [[ "${{ latest_commit_sha }}" != "${{ last_built_commit_sha }}" && -n "${{ latest_commit_sha }}" ]]; then
+          if [[ "$latest_commit_sha" != "$last_built_commit_sha" && -n "$latest_commit_sha" ]]; then
             echo "new_commits=true" >> $GITHUB_OUTPUT
           else
             echo "new_commits=false" >> $GITHUB_OUTPUT
           fi
     
           # Output latest commit sha for future steps
-          echo "latest_commit_sha=${{ latest_commit_sha }}" >> $GITHUB_OUTPUT
+          echo "latest_commit_sha=$latest_commit_sha" >> $GITHUB_OUTPUT
 
       - name: Check for new commits in NSS Packages Repository
         id: check_nss_packages_repo_new_commits
         run: |
           # Get the latest commit sha from the NSS packages repository
-          nss_packages_repo_latest_commit_sha=$(curl -sL "https://api.github.com/repos/${{ env.NSS_PACKAGES_REPOSITORY }}/commits?sha=${{ env.NSS_PACKAGES_REPOSITORY_BRANCH }}&per_page=1" | jq -r '.[0].sha')
+          latest_commit_sha=$(curl -sL "https://api.github.com/repos/${{ env.NSS_PACKAGES_REPOSITORY }}/commits?sha=${{ env.NSS_PACKAGES_REPOSITORY_BRANCH }}&per_page=1" | jq -r '.[0].sha')
     
           # Get the last built commit sha from the release body
-          nss_packages_repo_last_built_commit_sha=$(curl -sL "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.body' | grep -oP 'NSS Packages Commit: \K\w+' || echo '')
+          last_built_commit_sha=$(curl -sL "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.body' | grep -oP 'NSS Packages Commit: \K\w+' || echo '')
     
           # Print commit SHAs for debugging
-          echo "Latest commit sha from nss packages repository: ${{ nss_packages_repo_latest_commit_sha }}"
-          echo "Last built commit sha from nss packages repository: ${{ nss_packages_repo_last_built_commit_sha }}"
+          echo "Latest commit sha from nss packages repository: $latest_commit_sha"
+          echo "Last built commit sha from nss packages repository: $last_built_commit_sha"
     
-          # Compare commit SHAs and set nss_packages_repo_new_commits output
-          if [[ "${{ nss_packages_repo_latest_commit_sha }}" != "${{ nss_packages_repo_last_built_commit_sha }}" && -n "${{ nss_packages_repo_latest_commit_sha }}" ]]; then
-            echo "nss_packages_repo_new_commits=true" >> $GITHUB_OUTPUT
+          # Compare commit SHAs and set new_commits output
+          if [[ "$latest_commit_sha" != "$last_built_commit_sha" && -n "$latest_commit_sha" ]]; then
+            echo "new_commits=true" >> $GITHUB_OUTPUT
           else
-            echo "nss_packages_repo_new_commits=false" >> $GITHUB_OUTPUT
+            echo "new_commits=false" >> $GITHUB_OUTPUT
           fi
     
           # Output latest commit sha for future steps
-          echo "nss_packages_repo_latest_commit_sha=${{ nss_packages_repo_latest_commit_sha }}" >> $GITHUB_OUTPUT
+          echo "latest_commit_sha=$nss_packages_repo_latest_commit_sha" >> $GITHUB_OUTPUT
           
   build:
     name: Build OpenWrt
@@ -81,6 +81,10 @@ jobs:
     if: needs.check_commits.outputs.new_commits == 'true' || needs.check_commits.outputs.nss_packages_repo_new_commits == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
+      - name: Debug output values
+        run: |
+          echo "Latest commit sha from remote repository: ${{ needs.check_commits.outputs.latest_commit_sha }}"
+          echo "Latest commit sha from NSS packages repository: ${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}"
 
       - name: Free up disk space before installation
         run: |
