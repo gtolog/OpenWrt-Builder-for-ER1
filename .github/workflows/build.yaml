@@ -73,7 +73,7 @@ jobs:
           fi
     
           # Output latest commit sha for future steps
-          echo "latest_commit_sha=$nss_packages_repo_latest_commit_sha" >> $GITHUB_OUTPUT
+          echo "latest_commit_sha=$latest_commit_sha" >> $GITHUB_OUTPUT
           
   build:
     name: Build OpenWrt
@@ -83,6 +83,8 @@ jobs:
     steps:
       - name: Debug output values
         run: |
+          echo "needs.check_commits.outputs.new_commits: ${{ needs.check_commits.outputs.new_commits }}"
+          echo "needs.check_commits.outputs.nss_packages_repo_new_commits: ${{ needs.check_commits.outputs.nss_packages_repo_new_commits }}"
           echo "Latest commit sha from remote repository: ${{ needs.check_commits.outputs.latest_commit_sha }}"
           echo "Latest commit sha from NSS packages repository: ${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}"
 
