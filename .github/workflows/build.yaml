@@ -32,10 +32,35 @@ jobs:
       - name: Check for new commits
         id: check_new_commits
         run: |
-          latest_commit_sha=$(curl -sL "https://api.github.com/repos/${{ env.REMOTE_REPOSITORY }}/commits?sha=${{ env.REMOTE_BRANCH }}&per_page=1" | jq -r '.[0].sha')
+          # latest_commit_sha=$(curl -sL "https://api.github.com/repos/${{ env.REMOTE_REPOSITORY }}/commits?sha=${{ env.REMOTE_BRANCH }}&per_page=1" | jq -r '.[0].sha')
+          # last_built_commit_sha=$(curl -sL "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.body' | grep -oP 'Build Commit: \K\w+' || echo '')
+          # echo "new_commits=$([[ "$latest_commit_sha" != "$last_built_commit_sha" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          # echo "latest_commit_sha=$latest_commit_sha" >> $GITHUB_OUTPUT
+      
+          # Fetch the latest commit SHA from the remote repository
+          response=$(curl -sL "https://api.github.com/repos/${{ env.REMOTE_REPOSITORY }}/commits?sha=${{ env.REMOTE_BRANCH }}&per_page=1")
+          echo "REMOTE_REPOSITORY response: $response"
+          latest_commit_sha=$(echo "$response" | jq -r '.[0].sha')
+
+          # Handle case where no commit is found (if jq doesn't return a valid SHA)
+          if [ -z "$latest_commit_sha" ]; then
+            echo "Error: Latest commit SHA not found in REMOTE_REPOSITORY"
+            exit 1
+          fi
+
+          # Compare with last built commit SHA (stored in the release notes)
           last_built_commit_sha=$(curl -sL "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.body' | grep -oP 'Build Commit: \K\w+' || echo '')
-          echo "new_commits=$([[ "$latest_commit_sha" != "$last_built_commit_sha" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
-          echo "latest_commit_sha=$latest_commit_sha" >> $GITHUB_OUTPUT
+          echo "Last built commit SHA: $last_built_commit_sha"
+
+          if [ "$latest_commit_sha" != "$last_built_commit_sha" ]; then
+            new_commits="true"
+          else
+            new_commits="false"
+          fi
+
+          echo "::set-output name=new_commits::$new_commits"
+          echo "::set-output name=latest_commit_sha::$latest_commit_sha"
+         
       - name: Check for new commits in NSS Packages Repository
         id: check_nss_packages_repo_new_commits
         run: |
