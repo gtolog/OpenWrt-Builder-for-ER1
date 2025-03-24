@@ -104,7 +104,7 @@ jobs:
 
       # Cache the OpenWrt feeds
       - name: Cache OpenWrt feeds
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.opkg
@@ -115,7 +115,7 @@ jobs:
 
       # Cache the OpenWrt build directory
       - name: Cache OpenWrt build directory
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ./build
           key: ${{ runner.os }}-build-${{ github.sha }}
