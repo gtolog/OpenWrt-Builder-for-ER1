@@ -104,7 +104,7 @@ jobs:
           path: |
             ~/.opkg
             ./dl
-          key: ${{ runner.os }}-opkg-${{ needs.check_commits.outputs.latest_commit_sha }}
+          key: ${{ runner.os }}-opkg-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-opkg-
 
@@ -113,7 +113,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ./build
-          key: ${{ runner.os }}-build-${{ needs.check_commits.outputs.latest_commit_sha }}
+          key: ${{ runner.os }}-build-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-build-
             
