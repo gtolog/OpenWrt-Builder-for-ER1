@@ -81,11 +81,7 @@ jobs:
     if: needs.check_commits.outputs.new_commits == 'true' || needs.check_commits.outputs.nss_packages_repo_new_commits == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
-      - name: Debug output values
-        run: |
-          echo "Latest commit sha from remote repository: ${{ needs.check_commits.outputs.latest_commit_sha }}"
-          echo "Latest commit sha from NSS packages repository: ${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}"
-      
+
       - name: Free up disk space before installation
         run: |
           echo "Before cleanup:"
@@ -133,24 +129,26 @@ jobs:
           mv package/extra-packages/immortalwrt-packages/net/msd_lite package/extra-packages/
           rm -rf package/extra-packages/immortalwrt-packages
 
-      # Cache the OpenWrt feeds
       - name: Cache OpenWrt feeds
         uses: actions/cache@v3
         with:
           path: |
             ~/.opkg
             ./dl
-          key: ${{ runner.os }}-opkg-${{ needs.check_commits.outputs.latest_commit_sha }}
+          key: ${{ runner.os }}-opkg-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
           restore-keys: |
+            ${{ runner.os }}-opkg-${{ needs.check_commits.outputs.latest_commit_sha }}-
+            ${{ runner.os }}-opkg-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}-
             ${{ runner.os }}-opkg-
 
-      # Cache the OpenWrt build directory
       - name: Cache OpenWrt build directory
         uses: actions/cache@v3
         with:
           path: ./build
-          key: ${{ runner.os }}-build-${{ needs.check_commits.outputs.latest_commit_sha }}
+          key: ${{ runner.os }}-build-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
           restore-keys: |
+            ${{ runner.os }}-build-${{ needs.check_commits.outputs.latest_commit_sha }}-
+            ${{ runner.os }}-build-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}-
             ${{ runner.os }}-build-
             
       - name: Update and install feeds
