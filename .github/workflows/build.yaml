@@ -27,15 +27,25 @@ jobs:
     # if: needs.check_commits.outputs.new_commits == 'true' || needs.check_commits.outputs.nss_packages_repo_new_commits == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
-      - name: Cache OpenWrt build directory
+      # Cache the OpenWrt feeds
+      - name: Cache OpenWrt feeds
         uses: actions/cache@v2
         with:
           path: |
-            build_dir/
-            /tmp/feeds
-          key: ${{ runner.os }}-openwrt-build-${{ hashFiles('**/*.config') }}
+            ~/.opkg
+            ./dl
+          key: ${{ runner.os }}-opkg-${{ hashFiles('feeds.conf.default') }}
           restore-keys: |
-            ${{ runner.os }}-openwrt-build-
+            ${{ runner.os }}-opkg-
+
+      # Cache the OpenWrt build directory
+      - name: Cache OpenWrt build directory
+        uses: actions/cache@v2
+        with:
+          path: ./build
+          key: ${{ runner.os }}-build-${{ hashFiles('feeds.conf.default') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
           
       - name: Free up disk space before installation
         run: |
