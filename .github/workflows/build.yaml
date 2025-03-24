@@ -190,7 +190,7 @@ jobs:
 
   release:
     name: Create release
-    needs: [build]
+    needs: [build, check_commits]
     if: needs.build.result == 'success'
     runs-on: ubuntu-24.04
     steps:
