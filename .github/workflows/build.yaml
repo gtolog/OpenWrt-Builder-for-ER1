@@ -91,15 +91,61 @@ jobs:
           echo "Latest commit sha from remote repository: ${{ needs.check_commits.outputs.latest_commit_sha }}"
           echo "Latest commit sha from NSS packages repository: ${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}"
 
-      - name: Free up disk space before installation
-        run: |
-          echo "Before cleanup:"
-          df -h
-          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost
-          sudo apt-get clean
-          sudo apt-get autoremove -y
-          echo "After cleanup:"
-          df -h
+      #- name: Free up disk space before installation
+      #  run: |
+      #    echo "Before cleanup:"
+      #    df -h
+      #    sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost
+      #    sudo apt-get clean
+      #    sudo apt-get autoremove -y
+      #    echo "After cleanup:"
+      #    df -h
+      
+    - name: Before freeing up disk space
+      run: |
+        echo "Before freeing up disk space"
+        echo "=============================================================================="
+        df -hT
+        echo "=============================================================================="
+
+    - name: "Optimize Disk Space"
+      uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.1"
+      with:
+        operate_sudo: "True"
+        general_include: ".+"
+        general_exclude: |-
+          ^GCC$
+          ^G\+\+$
+          Clang
+          LLVM
+        docker_include: ".+"
+        docker_prune: "True"
+        docker_clean: "True"
+        apt_prune: "True"
+        apt_clean: "True"
+        homebrew_prune: "True"
+        homebrew_clean: "True"
+        npm_prune: "True"
+        npm_clean: "True"
+        os_swap: "True"
+
+    - name: Freeing up disk space
+      uses: easimon/maximize-build-space@master
+      with: 
+        root-reserve-mb: 2048
+        swap-size-mb: 1
+        remove-dotnet: 'true'
+        remove-android: 'true'
+        remove-haskell: 'true'
+        remove-codeql: 'true'
+        remove-docker-images: 'true'
+
+    - name: Free up disk space complete
+      run: |
+        echo "Free up disk space complete"
+        echo "=============================================================================="
+        df -hT
+        echo "=============================================================================="
           
       - name: Set up ccache
         run: |
