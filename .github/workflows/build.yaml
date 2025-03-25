@@ -178,8 +178,12 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ${{ github.workspace }}/staging_dir/tool*
-            ${{ github.workspace }}/staging_dir/host*
+            staging_dir/toolchain-*
+            staging_dir/host/bin/
+            staging_dir/host/lib/
+            staging_dir/host/include/
+            staging_dir/hostpkg/
+            build_dir/toolchain-*
           key: toolchain-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
           
       - name: Cache ccache
