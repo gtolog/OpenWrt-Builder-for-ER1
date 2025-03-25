@@ -10,10 +10,12 @@ env:
   REMOTE_REPOSITORY: gtolog/openwrt-ipq
   # REMOTE_REPOSITORY: AgustinLorenzo/openwrt
   REMOTE_BRANCH: 24.10-nss-re-cs-07
+  TARGET: qualcommax
+  SUBTARGET: ipq60xx
   # REMOTE_BRANCH: main_nss
   CONFIG_FILE: build.config
   CUSTOM_FILES_PATH: files/
-  RELEASE_PREFIX: openwrt-qualcommax-ipq60xx
+  RELEASE_PREFIX: openwrt-${{ env.TARGET }}-${{ env.SUBTARGET }}
   NSS_PACKAGES_REPOSITORY: qosmio/nss-packages
   NSS_PACKAGES_REPOSITORY_BRANCH: NSS-12.5-K6.x
   
@@ -100,18 +102,7 @@ jobs:
           sudo mkdir /mnt/ccache
           mkdir ${{ env.CCACHE_DIR }}
           sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
-          
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y \
-            build-essential clang flex bison g++ gawk \
-            gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev \
-            python3-setuptools rsync swig unzip zlib1g-dev file wget
-          sudo apt full-upgrade -y
-          sudo apt-get clean
-          sudo apt-get autoremove -y
-      
+
       - name: Checkout remote repository
         uses: actions/checkout@v4
         with:
@@ -121,7 +112,7 @@ jobs:
       - name: Checkout current repository
         uses: actions/checkout@v4
         with:
-          path: "custom_repo"
+          path: "builder_repo"
 
       - name: Add extra packages
         run: |
@@ -137,6 +128,34 @@ jobs:
           # Keep msd_lite inside extra-packages to maintain structure
           mv package/extra-packages/immortalwrt-packages/net/msd_lite package/extra-packages/
           rm -rf package/extra-packages/immortalwrt-packages
+
+      # Cache OpenWrt toolchain
+      - name: Cache OpenWrt toolchain
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/staging_dir/tool*
+            ${{ github.workspace }}/staging_dir/host*
+          key: toolchain-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
+          
+      #- name: Cache ccache
+      #  uses: actions/cache@v3
+      #  with:
+      #    path: ${{ github.workspace }}/.ccache
+      #    key: ccache-kernel-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
+      #    restore-keys: |
+      #      ccache-kernel-${{ runner.os }}-
+          
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            build-essential clang flex bison g++ gawk \
+            gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev \
+            python3-setuptools rsync swig unzip zlib1g-dev file wget
+          sudo apt full-upgrade -y
+          sudo apt-get clean
+          sudo apt-get autoremove -y
             
       - name: Update and install feeds
         run: |
@@ -145,13 +164,13 @@ jobs:
       
       - name: Configure firmware image
         run: |
-          mv custom_repo/${{ env.CONFIG_FILE }} .config
+          mv builder_repo/${{ env.CONFIG_FILE }} .config
           make defconfig -j$(nproc)
       
       - name: Include custom files
         run: |
           mkdir -p ${{ env.CUSTOM_FILES_PATH }}
-          mv custom_repo/${{ env.CUSTOM_FILES_PATH }}* ${{ env.CUSTOM_FILES_PATH }}
+          mv builder_repo/${{ env.CUSTOM_FILES_PATH }}* ${{ env.CUSTOM_FILES_PATH }}
 
       - name: Download dependencies
         run: make download -j$(nproc)
@@ -161,17 +180,17 @@ jobs:
         
       - name: Clean up before packaging
         run: |
-          rm -rf bin/targets/qualcommax/ipq60xx/*.tmp
+          rm -rf bin/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/*.tmp
           rm -rf build_dir/*
           
       - name: Package output
-        run: tar -cvf ipq60xx-images.tar bin/targets/qualcommax/ipq60xx
+        run: tar -cvf ${{ env.SUBTARGET }}-images.tar bin/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}
       
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ipq60xx-images
-          path: ipq60xx-images.tar
+          name: ${{ env.SUBTARGET }}-images
+          path: ${{ env.SUBTARGET }}-images.tar
 
   release:
     name: Create release
@@ -182,10 +201,10 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: ipq60xx-images
+          name: ${{ env.SUBTARGET }}-images
       
       - name: Extract artifacts
-        run: tar xf ipq60xx-images.tar
+        run: tar xf ${{ env.SUBTARGET }}-images.tar
       
       - name: Get current date
         run: echo "RELEASE_DATE=$(date +%F)" >> $GITHUB_ENV
@@ -193,7 +212,7 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          files: bin/targets/qualcommax/ipq60xx/*
+          files: bin/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/*
           tag_name: ${{ env.RELEASE_PREFIX }}-${{ env.RELEASE_DATE }}
           name: Updated prebuilt images ${{ env.RELEASE_DATE }}
           token: ${{ secrets.GITHUB_TOKEN }}
