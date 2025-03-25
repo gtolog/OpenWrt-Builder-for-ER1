@@ -182,11 +182,11 @@ jobs:
             ${{ github.workspace }}/staging_dir/host*
           key: toolchain-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
           
-      #- name: Cache ccache
-      #  uses: actions/cache@v3
-      #  with:
-      #    path: ${{ github.workspace }}/.ccache
-      #    key: ccache-kernel-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
+      - name: Cache ccache
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.ccache
+          key: ccache-kernel-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
       #    restore-keys: |
       #      ccache-kernel-${{ runner.os }}-
           
