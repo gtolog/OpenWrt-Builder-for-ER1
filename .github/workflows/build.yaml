@@ -146,15 +146,6 @@ jobs:
           echo "=============================================================================="
           df -hT
           echo "=============================================================================="
-          
-      - name: Set up ccache
-        run: |
-          # Create .ccache and bind mount it to /mnt/ccache
-          sudo mkdir /mnt/ccache
-          mkdir -p .ccache
-          sudo mount --bind .ccache /mnt/ccache
-          export CCACHE_DIR=${{ github.workspace }}/.ccache
-          export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
       - name: Checkout remote repository
         uses: actions/checkout@v4
