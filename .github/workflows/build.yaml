@@ -97,6 +97,9 @@ jobs:
           sudo apt-get autoremove -y
           echo "After cleanup:"
           df -h
+          sudo mkdir /mnt/ccache
+          mkdir ${{ env.CCACHE_DIR }}
+          sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
           
       - name: Install dependencies
         run: |
