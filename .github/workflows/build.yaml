@@ -12,10 +12,11 @@ env:
   REMOTE_BRANCH: 24.10-nss-re-cs-07
   TARGET: qualcommax
   SUBTARGET: ipq60xx
+  DEVICE: er1
   # REMOTE_BRANCH: main_nss
   CONFIG_FILE: build.config
   CUSTOM_FILES_PATH: files/
-  RELEASE_PREFIX: "openwrt-${{ TARGET }}-${{ SUBTARGET }}"
+  RELEASE_PREFIX: openwrt-qualcommax-ipq60xx
   NSS_PACKAGES_REPOSITORY: qosmio/nss-packages
   NSS_PACKAGES_REPOSITORY_BRANCH: NSS-12.5-K6.x
   
@@ -213,11 +214,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: bin/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/*
-          tag_name: ${{ env.RELEASE_PREFIX }}-${{ env.RELEASE_DATE }}
+          tag_name: ${{ env.RELEASE_PREFIX }}-${{ env.DEVICE }}-${{ env.RELEASE_DATE }}
           name: Updated prebuilt images ${{ env.RELEASE_DATE }}
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
-            Updated prebuilt images for ${{ env.RELEASE_DATE }}
+            Updated prebuilt images for ${{ env.DEVICE }}
             Build Commit: ${{ needs.check_commits.outputs.latest_commit_sha }}
             NSS Packages Commit: ${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
       
