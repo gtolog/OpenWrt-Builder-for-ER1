@@ -134,30 +134,6 @@ jobs:
           # Keep msd_lite inside extra-packages to maintain structure
           mv package/extra-packages/immortalwrt-packages/net/msd_lite package/extra-packages/
           rm -rf package/extra-packages/immortalwrt-packages
-
-      - name: Cache OpenWrt feeds
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.opkg
-            ./dl
-          key: ${{ runner.os }}-opkg-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
-          restore-keys: |
-            ${{ runner.os }}-opkg-${{ needs.check_commits.outputs.latest_commit_sha }}-
-            ${{ runner.os }}-opkg-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}-
-            ${{ runner.os }}-opkg-
-
-      - name: Cache OpenWrt build directory
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./build_dir
-            ./staging_dir
-          key: ${{ runner.os }}-build-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ needs.check_commits.outputs.latest_commit_sha }}-
-            ${{ runner.os }}-build-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}-
-            ${{ runner.os }}-build-
             
       - name: Update and install feeds
         run: |
