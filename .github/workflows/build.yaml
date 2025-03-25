@@ -95,14 +95,21 @@ jobs:
         run: |
           echo "Before cleanup:"
           df -h
-          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost
+          sudo apt-get -qq purge build-essential ghc*
           sudo apt-get clean
           sudo apt-get autoremove -y
+          docker system prune -af
           echo "After cleanup:"
           df -h
+          
+      - name: Set up ccache
+        run: |
+          # Create .ccache and bind mount it to /mnt/ccache
           sudo mkdir /mnt/ccache
-          mkdir ${{ env.CCACHE_DIR }}
-          sudo mount --bind ${{ env.CCACHE_DIR }} /mnt/ccache
+          mkdir -p .ccache
+          sudo mount --bind .ccache /mnt/ccache
+          export CCACHE_DIR=${{ github.workspace }}/.ccache
+          export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
       - name: Checkout remote repository
         uses: actions/checkout@v4
