@@ -188,9 +188,9 @@ jobs:
           path: |
             ${{ github.workspace }}/staging_dir/host
             ${{ github.workspace }}/build_dir/host
-          key: ${{ runner.os }}-host-tools-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
+          key: host-tools-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
           restore-keys: |
-            ${{ runner.os }}-host-tools-
+            host-tools-${{ runner.os }}-
           
       - name: Install dependencies
         run: |
