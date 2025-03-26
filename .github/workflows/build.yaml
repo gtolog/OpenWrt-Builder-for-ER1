@@ -172,20 +172,7 @@ jobs:
           # Keep msd_lite inside extra-packages to maintain structure
           mv package/extra-packages/immortalwrt-packages/net/msd_lite package/extra-packages/
           rm -rf package/extra-packages/immortalwrt-packages
-
-      # Cache OpenWrt toolchain
-      #- name: Cache OpenWrt toolchain
-      #  uses: actions/cache@v3
-      #  with:
-      #    path: |
-      #      staging_dir/toolchain-*
-      #      staging_dir/host/bin/
-      #      staging_dir/host/lib/
-      #      staging_dir/host/include/
-      #      staging_dir/hostpkg/
-      #      build_dir/toolchain-*
-      #    key: toolchain-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
-      #    
+          
       - name: Cache ccache
         uses: actions/cache@v3
         with:
@@ -193,6 +180,17 @@ jobs:
           key: ccache-kernel-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
       #    restore-keys: |
       #      ccache-kernel-${{ runner.os }}-
+
+      - name: Cache built host tools
+        id: cache-built-host-tools
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/staging_dir/host
+            ${{ github.workspace }}/build_dir/host
+          key: ${{ runner.os }}-host-tools-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
+          restore-keys: |
+            ${{ runner.os }}-host-tools-
           
       - name: Install dependencies
         run: |
@@ -249,6 +247,10 @@ jobs:
             --toolchain ${{ env.TOOLCHAIN_FILE }}/toolchain-* \
             --overwrite-config \
             --config ${{ env.TARGET }}/${{ env.SUBTARGET }}
+
+      - name: Configure host tools
+        if: ${{ steps.cache-built-host-tools.outputs.cache-hit == 'true' }}
+        run: ./scripts/ext-tools.sh --refresh
 
       - name: Download dependencies
         run: make download -j$(nproc)
