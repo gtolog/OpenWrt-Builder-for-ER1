@@ -241,7 +241,7 @@ jobs:
         if: ${{ steps.cache-external-toolchain.outputs.cache-hit != 'true' }}
         shell: su buildbot -c "sh -e {0}"
         run: |
-          wget -O - https://downloads.cdn.openwrt.org/snapshots/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/${TOOLCHAIN_FILE}.tar.xz \
+          wget -O - https://downloads.cdn.openwrt.org/snapshots/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/${TOOLCHAIN_FILE}.tar.zst \
             | tar --xz -xf -
             
       - name: Extract prebuilt tools
