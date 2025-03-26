@@ -250,7 +250,12 @@ jobs:
 
       - name: Configure host tools
         if: ${{ steps.cache-built-host-tools.outputs.cache-hit == 'true' }}
-        run: ./scripts/ext-tools.sh --refresh
+        run: |
+          if [[ -d "./build_dir/host" && -d "./staging_dir/host" ]]; then
+             ./scripts/ext-tools.sh --refresh
+          else
+            echo "One or both of the required directories do not exist."
+          fi
 
       - name: Download dependencies
         run: make download -j$(nproc)
@@ -261,7 +266,6 @@ jobs:
       - name: Clean up before packaging
         run: |
           rm -rf bin/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/*.tmp
-          rm -rf build_dir/*
           
       - name: Package output
         run: tar -cvf ${{ env.SUBTARGET }}-images.tar bin/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}
