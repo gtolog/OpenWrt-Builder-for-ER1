@@ -241,7 +241,7 @@ jobs:
         if: ${{ steps.cache-external-toolchain.outputs.cache-hit != 'true' }}
         run: |
           wget -O - https://downloads.cdn.openwrt.org/snapshots/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/${{ env.TOOLCHAIN_FILE }}.tar.zst \
-            | tar --xz -xf -
+            | tar --zstd -xf -
             
       - name: Extract prebuilt tools
         run: ./scripts/ext-tools.sh --tools /tools.tar
