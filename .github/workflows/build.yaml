@@ -249,12 +249,6 @@ jobs:
             --toolchain ${{ env.TOOLCHAIN_FILE }}/toolchain-* \
             --overwrite-config \
             --config ${{ env.TARGET }}/${{ env.SUBTARGET }}
- 
-      - name: Build tools
-        run: make tools/install -j$(nproc)
- 
-      - name: Build toolchain
-        run: make toolchain/install -j$(nproc)
 
       - name: Download dependencies
         run: make download -j$(nproc)
