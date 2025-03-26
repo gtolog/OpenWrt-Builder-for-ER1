@@ -239,22 +239,25 @@ jobs:
  
       - name: Download external toolchain
         if: ${{ steps.cache-external-toolchain.outputs.cache-hit != 'true' }}
-        #shell: su buildbot -c "sh -e {0}"
         run: |
-          wget -O - https://downloads.cdn.openwrt.org/snapshots/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/${ env.TOOLCHAIN_FILE }.tar.zst \
+          wget -O - https://downloads.cdn.openwrt.org/snapshots/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/${{ env.TOOLCHAIN_FILE }}.tar.zst \
             | tar --xz -xf -
             
       - name: Extract prebuilt tools
-        #shell: su buildbot -c "sh -e {0}"
         run: ./scripts/ext-tools.sh --tools /tools.tar
 
       - name: Configure external toolchain
-        #shell: su buildbot -c "sh -e {0}"
         run: |
           ./scripts/ext-toolchain.sh \
             --toolchain ${{ env.TOOLCHAIN_FILE }}/toolchain-* \
             --overwrite-config \
             --config ${{ env.TARGET }}/${{ env.SUBTARGET }}
+ 
+      - name: Build tools
+        run: make tools/install -j$(nproc)
+ 
+      - name: Build toolchain
+        run: make toolchain/install -j$(nproc)
 
       - name: Download dependencies
         run: make download -j$(nproc)
