@@ -84,12 +84,12 @@ jobs:
     if: needs.check_commits.outputs.new_commits == 'true' || needs.check_commits.outputs.nss_packages_repo_new_commits == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
-      - name: Debug output values
-        run: |
-          echo "needs.check_commits.outputs.new_commits: ${{ needs.check_commits.outputs.new_commits }}"
-          echo "needs.check_commits.outputs.nss_packages_repo_new_commits: ${{ needs.check_commits.outputs.nss_packages_repo_new_commits }}"
-          echo "Latest commit sha from remote repository: ${{ needs.check_commits.outputs.latest_commit_sha }}"
-          echo "Latest commit sha from NSS packages repository: ${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}"
+      #- name: Debug output values
+      #  run: |
+      #    echo "needs.check_commits.outputs.new_commits: ${{ needs.check_commits.outputs.new_commits }}"
+      #    echo "needs.check_commits.outputs.nss_packages_repo_new_commits: ${{ needs.check_commits.outputs.nss_packages_repo_new_commits }}"
+      #    echo "Latest commit sha from remote repository: ${{ needs.check_commits.outputs.latest_commit_sha }}"
+      #    echo "Latest commit sha from NSS packages repository: ${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}"
 
       #- name: Free up disk space before installation
       #  run: |
@@ -174,18 +174,18 @@ jobs:
           rm -rf package/extra-packages/immortalwrt-packages
 
       # Cache OpenWrt toolchain
-      - name: Cache OpenWrt toolchain
-        uses: actions/cache@v3
-        with:
-          path: |
-            staging_dir/toolchain-*
-            staging_dir/host/bin/
-            staging_dir/host/lib/
-            staging_dir/host/include/
-            staging_dir/hostpkg/
-            build_dir/toolchain-*
-          key: toolchain-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
-          
+      #- name: Cache OpenWrt toolchain
+      #  uses: actions/cache@v3
+      #  with:
+      #    path: |
+      #      staging_dir/toolchain-*
+      #      staging_dir/host/bin/
+      #      staging_dir/host/lib/
+      #      staging_dir/host/include/
+      #      staging_dir/hostpkg/
+      #      build_dir/toolchain-*
+      #    key: toolchain-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
+      #    
       - name: Cache ccache
         uses: actions/cache@v3
         with:
@@ -219,6 +219,42 @@ jobs:
         run: |
           mkdir -p ${{ env.CUSTOM_FILES_PATH }}
           mv builder_repo/${{ env.CUSTOM_FILES_PATH }}* ${{ env.CUSTOM_FILES_PATH }}
+
+      - name: Parse toolchain file
+        run: |
+          TOOLCHAIN_STRING="$(curl "https://downloads.cdn.openwrt.org/snapshots/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/sha256sums" \
+            | grep ".*openwrt-toolchain.*tar.xz")"
+          TOOLCHAIN_FILE=$(echo "$TOOLCHAIN_STRING" | sed -n -e 's/.*\(openwrt-toolchain.*\).tar.xz/\1/p')
+          TOOLCHAIN_SHA256=$(echo "$TOOLCHAIN_STRING" | cut -d ' ' -f 1)
+          
+          echo "TOOLCHAIN_FILE=$TOOLCHAIN_FILE" >> "$GITHUB_ENV"
+          echo "TOOLCHAIN_SHA256=$TOOLCHAIN_SHA256" >> "$GITHUB_ENV"
+ 
+      - name: Cache external toolchain
+        id: cache-external-toolchain
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/${{ env.TOOLCHAIN_FILE }}
+          key: ${{ env.TOOLCHAIN_FILE }}-${{ env.TOOLCHAIN_SHA256 }}
+ 
+      - name: Download external toolchain
+        if: ${{ steps.cache-external-toolchain.outputs.cache-hit != 'true' }}
+        shell: su buildbot -c "sh -e {0}"
+        run: |
+          wget -O - https://downloads.cdn.openwrt.org/snapshots/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/${TOOLCHAIN_FILE}.tar.xz \
+            | tar --xz -xf -
+            
+      - name: Extract prebuilt tools
+        shell: su buildbot -c "sh -e {0}"
+        run: ./scripts/ext-tools.sh --tools /tools.tar
+
+      - name: Configure external toolchain
+        shell: su buildbot -c "sh -e {0}"
+        run: |
+          ./scripts/ext-toolchain.sh \
+            --toolchain ${{ env.TOOLCHAIN_FILE }}/toolchain-* \
+            --overwrite-config \
+            --config ${{ env.TARGET }}/${{ env.SUBTARGET }}
 
       - name: Download dependencies
         run: make download -j$(nproc)
