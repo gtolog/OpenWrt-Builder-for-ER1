@@ -164,6 +164,7 @@ jobs:
           git clone --depth=1 --single-branch https://github.com/gSpotx2f/luci-app-temp-status package/extra-packages/luci-app-temp-status
           git clone --depth=1 --single-branch https://github.com/gSpotx2f/luci-app-cpu-status-mini package/extra-packages/luci-app-cpu-status-mini
           git clone --depth=1 --single-branch https://github.com/sbwml/luci-app-airconnect package/extra-packages/luci-app-airconnect
+          git clone --depth=1 --single-branch https://github.com/sbwml/package_kernel_r8152 package/extra-packages/package_kernel_r8152
 
           # Clone only msd_lite from immortalwrt without unnecessary files
           git clone --depth=1 --filter=blob:none --sparse --single-branch --no-checkout https://github.com/immortalwrt/packages.git package/extra-packages/immortalwrt-packages
@@ -178,8 +179,8 @@ jobs:
         with:
           path: ${{ github.workspace }}/.ccache
           key: ccache-kernel-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
-      #    restore-keys: |
-      #      ccache-kernel-${{ runner.os }}-
+          #restore-keys: |
+          #  ccache-kernel-${{ runner.os }}-
 
       - name: Cache built host tools
         id: cache-built-host-tools
@@ -189,8 +190,8 @@ jobs:
             ${{ github.workspace }}/staging_dir/host
             ${{ github.workspace }}/build_dir/host
           key: host-tools-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
-          restore-keys: |
-            host-tools-${{ runner.os }}-
+          #restore-keys: |
+          #  host-tools-${{ runner.os }}-
           
       - name: Install dependencies
         run: |
