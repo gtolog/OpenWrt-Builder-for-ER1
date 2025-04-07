@@ -219,6 +219,19 @@ jobs:
           mkdir -p ${{ env.CUSTOM_FILES_PATH }}
           mv builder_repo/${{ env.CUSTOM_FILES_PATH }}* ${{ env.CUSTOM_FILES_PATH }}
 
+      - name: Add custom patches
+        run: |
+          if [ "$(ls builder_repo/patches)" ]; then
+            mv builder_repo/patches/* ./
+            for patch in *.patch; do
+              git apply --verbose "$patch"
+              echo "=== Diff after applying $patch ==="
+              git diff HEAD
+            done
+            echo "Changed files after patch application:"
+            git status
+          fi
+
       - name: Parse toolchain file
         run: |
           TOOLCHAIN_STRING="$(curl "https://downloads.cdn.openwrt.org/snapshots/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/sha256sums" \
