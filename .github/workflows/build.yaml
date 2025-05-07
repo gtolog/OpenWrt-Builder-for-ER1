@@ -161,7 +161,7 @@ jobs:
       - name: Add extra packages
         run: |
           # Clone extra LuCI packages directly into the correct directory
-          git clone --depth=1 --single-branch https://github.com/jerrykuku/luci-theme-argon
+          git clone --depth=1 --single-branch https://github.com/jerrykuku/luci-theme-argon package/extra-packages/luci-theme-argon
           git clone --depth=1 --single-branch https://github.com/gSpotx2f/luci-app-temp-status package/extra-packages/luci-app-temp-status
           git clone --depth=1 --single-branch https://github.com/gSpotx2f/luci-app-cpu-status-mini package/extra-packages/luci-app-cpu-status-mini
           git clone --depth=1 --single-branch https://github.com/sbwml/luci-app-airconnect package/extra-packages/luci-app-airconnect
