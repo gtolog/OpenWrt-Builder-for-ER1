@@ -1,4 +1,3 @@
-@ -0,0 +1,175 @@
 diff --git a/modules/luci-base/po/zh_Hans/base.po b/modules/luci-base/po/zh_Hans/base.po
 index 7eb609ce0f..4097e20181 100644
 --- a/modules/luci-base/po/zh_Hans/base.po
@@ -16,7 +15,7 @@ index 7eb609ce0f..4097e20181 100644
 +msgid "Temperature"
 +msgstr "当前温度"
 diff --git a/modules/luci-base/root/usr/share/rpcd/ucode/luci b/modules/luci-base/root/usr/share/rpcd/ucode/luci
-index e104225d0f..f736436466 100644
+index e104225d0f..87714949a2 100644
 --- a/modules/luci-base/root/usr/share/rpcd/ucode/luci
 +++ b/modules/luci-base/root/usr/share/rpcd/ucode/luci
 @@ -585,6 +585,60 @@ const methods = {
@@ -30,7 +29,7 @@ index e104225d0f..f736436466 100644
 +			if (!access('/sbin/cpuinfo'))
 +				return {};
 +
-+			const fd = popen('/sbin/cpuinfo');
++			const fd = popen('sh /sbin/cpuinfo');
 +			if (fd) {
 +				let cpuinfo = fd.read('all');
 +				if (!cpuinfo)
@@ -46,7 +45,7 @@ index e104225d0f..f736436466 100644
 +	
 +	getPerformanceOverview: {
 +		call: function() {
-+			const fd = popen(access('/sbin/performanceoverview') ? '/sbin/performanceoverview' : 'top -n1 | awk \'/^CPU/ {printf("%d%", 100 - $8)}\'')
++			const fd = popen(access('/sbin/performanceoverview') ? 'sh /sbin/performanceoverview' : 'top -n1 | awk \'/^CPU/ {printf("%d%", 100 - $8)}\'')
 +			if (fd) {
 +				let overview = fd.read('all');
 +				if (!overview)
@@ -65,7 +64,7 @@ index e104225d0f..f736436466 100644
 +			if (!access('/sbin/tempinfo'))
 +				return {};
 +
-+			const fd = popen('/sbin/tempinfo');
++			const fd = popen('sh /sbin/tempinfo');
 +			if (fd) {
 +				let tempinfo = fd.read('all');
 +				if (!tempinfo)
