@@ -15,7 +15,7 @@ index 7eb609ce0f..4097e20181 100644
 +msgid "Temperature"
 +msgstr "当前温度"
 diff --git a/modules/luci-base/root/usr/share/rpcd/ucode/luci b/modules/luci-base/root/usr/share/rpcd/ucode/luci
-index e104225d0f..87714949a2 100644
+index e104225d0f..c8541304b0 100644
 --- a/modules/luci-base/root/usr/share/rpcd/ucode/luci
 +++ b/modules/luci-base/root/usr/share/rpcd/ucode/luci
 @@ -585,6 +585,60 @@ const methods = {
