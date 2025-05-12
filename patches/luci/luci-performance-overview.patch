@@ -1,3 +1,4 @@
+@ -0,0 +1,175 @@
 diff --git a/modules/luci-base/po/zh_Hans/base.po b/modules/luci-base/po/zh_Hans/base.po
 index 7eb609ce0f..4097e20181 100644
 --- a/modules/luci-base/po/zh_Hans/base.po
@@ -160,3 +161,16 @@ index 45f7b4acae..186bfeaf75 100644
 -});
 +});
 \ No newline at end of file
+diff --git a/modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json b/modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json
+index 200631e97b..e79ce16521 100644
+--- a/modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json
++++ b/modules/luci-mod-status/root/usr/share/rpcd/acl.d/luci-mod-status.json
+@@ -3,7 +3,7 @@
+ 		"description": "Grant access to realtime statistics",
+ 		"read": {
+ 			"ubus": {
+-				"luci": [ "getConntrackList", "getRealtimeStats" ],
++				"luci": [ "getConntrackList", "getRealtimeStats", "getCPUInfo", "getPerformanceOverview", "getTempInfo" ],
+ 				"network.rrdns": [ "lookup" ]
+ 			}
+ 		}
