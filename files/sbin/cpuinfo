@@ -11,15 +11,15 @@ cpu_arch="$(awk -F ': ' '/model name/ {print $2}' "$CPUINFO_PATH" | head -n1)"
 
 case "$DISTRIB_TARGET" in
 qualcommax/*)
-    # Fetch system board info using ubus
-    board_info=$(ubus call system board)
-    
-    # Extract the "system" information using grep and awk
-    system_info=$(echo "$board_info" | grep -o '"system": "[^"]*' | awk -F': ' '{print $2}' | tr -d '"')
+	# Fetch system board info using ubus
+	board_info=$(ubus call system board)
 
-    # Combine system info with DISTRIB_ARCH
-    cpu_arch="$system_info, $DISTRIB_ARCH"
-    ;;
+	# Extract the "system" information using grep and awk
+	system_info=$(echo "$board_info" | grep -o '"system": "[^"]*' | awk -F': ' '{print $2}' | tr -d '"')
+
+	# Combine system info with DISTRIB_ARCH
+	cpu_arch="$system_info, $DISTRIB_ARCH"
+	;;
 *)
 	cpu_arch="$(awk -F ': ' '/model name/ {print $2}' "$CPUINFO_PATH" | head -n1)"
 	[ -n "${cpu_arch}" ] || cpu_arch="General Processor"
