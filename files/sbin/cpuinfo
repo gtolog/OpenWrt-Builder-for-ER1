@@ -10,6 +10,23 @@ cpu_arch="$(awk -F ': ' '/model name/ {print $2}' "$CPUINFO_PATH" | head -n1)"
 [ -n "${cpu_arch}" ] || cpu_arch="General Processor"
 
 case "$DISTRIB_TARGET" in
+qualcommax/*)
+    # Fetch system board info using ubus
+    board_info=$(ubus call system board)
+    
+    # Extract the "system" information using grep and awk
+    system_info=$(echo "$board_info" | grep -o '"system": "[^"]*' | awk -F': ' '{print $2}' | tr -d '"')
+
+    # Combine system info with DISTRIB_ARCH
+    cpu_arch="$system_info, $DISTRIB_ARCH"
+    ;;
+*)
+	cpu_arch="$(awk -F ': ' '/model name/ {print $2}' "$CPUINFO_PATH" | head -n1)"
+	[ -n "${cpu_arch}" ] || cpu_arch="General Processor"
+	;;
+esac
+
+case "$DISTRIB_TARGET" in
 "x86"/*)
 	cpu_cores="$(grep "core id" "$CPUINFO_PATH" | sort -u | wc -l)C $(grep -c "processor" "$CPUINFO_PATH")T" ;;
 *)
@@ -26,9 +43,14 @@ case "$DISTRIB_TARGET" in
 "x86"/*)
 	cpu_freq="$(awk -F ': ' '/MHz/ {print $2}' "$CPUINFO_PATH" | head -n1)MHz" ;;
 *)
-	[ ! -e "$CPUFREQ_PATH/policy0/cpuinfo_cur_freq" ] || \
-		cpu_freq="$(awk '{printf("%.fMHz", $0 / 1000)}' "$CPUFREQ_PATH/policy0/cpuinfo_cur_freq")"
-	;;
+	if [ -e "$CPUFREQ_PATH/policy0/cpuinfo_cur_freq" ]; then
+		cpu_khz=$(cat "$CPUFREQ_PATH/policy0/cpuinfo_cur_freq")
+		if [ "$cpu_khz" -ge 1000000 ]; then
+			cpu_freq="$(awk -v khz="$cpu_khz" 'BEGIN { printf("%.2fGHz", khz / 1000000) }')"
+		else
+			cpu_freq="$(awk -v khz="$cpu_khz" 'BEGIN { printf("%.0fMHz", khz / 1000) }')"
+		fi
+	fi
 esac
 
 case "$DISTRIB_TARGET" in
