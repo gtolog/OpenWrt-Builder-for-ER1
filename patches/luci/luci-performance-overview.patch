@@ -45,7 +45,7 @@ index e104225d0f..87714949a2 100644
 +	
 +	getPerformanceOverview: {
 +		call: function() {
-+			const fd = popen(access('/sbin/performanceoverview') ? 'sh /sbin/performanceoverview' : 'top -n1 | awk \'/^CPU/ {printf("%d%", 100 - $8)}\'')
++			const fd = popen(access('/sbin/performanceoverview') ? 'sh /sbin/performanceoverview' : 'top -n1 | awk \'/^CPU/ {printf("%d%", 100 - $8)}\'');
 +			if (fd) {
 +				let overview = fd.read('all');
 +				if (!overview)
