@@ -162,8 +162,10 @@ jobs:
         run: |
           # Clone extra LuCI packages directly into the correct directory
           git clone --depth=1 --single-branch https://github.com/jerrykuku/luci-theme-argon package/extra-packages/luci-theme-argon
-          git clone --depth=1 --single-branch https://github.com/gSpotx2f/luci-app-temp-status package/extra-packages/luci-app-temp-status
+          git clone --depth=1 --single-branch https://github.com/gSpotx2f/luci-app-cpu-perf package/extra-packages/luci-app-cpu-perf
+          git clone --depth=1 --single-branch https://github.com/gSpotx2f/luci-app-cpu-status package/extra-packages/luci-app-cpu-status
           git clone --depth=1 --single-branch https://github.com/gSpotx2f/luci-app-cpu-status-mini package/extra-packages/luci-app-cpu-status-mini
+          git clone --depth=1 --single-branch https://github.com/gSpotx2f/luci-app-temp-status package/extra-packages/luci-app-temp-status
           git clone --depth=1 --single-branch https://github.com/sbwml/luci-app-airconnect package/extra-packages/luci-app-airconnect
           git clone --depth=1 --single-branch https://github.com/sbwml/package_kernel_r8152 package/extra-packages/package_kernel_r8152
           git clone --depth=1 --single-branch https://github.com/gtolog/openwrt-msd_lite package/extra-packages/openwrt-msd_lite
