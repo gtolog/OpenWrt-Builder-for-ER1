@@ -391,7 +391,6 @@ index cbc6292978..ebadf53017 100644
 
 
 From bd10c1fe1d2087e6043565a0d66536916335790e Mon Sep 17 00:00:00 2001
-From: gtolog <mail.yanggan@gmail.com>
 Date: Mon, 17 Mar 2025 17:56:56 +0800
 Subject: [PATCH 2/3] add ipq6018-nss.dtsi
 
@@ -622,11 +621,8 @@ index 0000000000..97a7d3fd08
 
 
 From f2a75c7d695c79201736a8805a98c606f002310d Mon Sep 17 00:00:00 2001
-From: gtolog <mail.yanggan@gmail.com>
 Date: Sun, 23 Mar 2025 16:34:26 +0800
 Subject: [PATCH 3/3] Update target.mk
-
-Signed-off-by: gtolog <mail.yanggan@gmail.com>
 ---
  target/linux/qualcommax/ipq60xx/target.mk | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
