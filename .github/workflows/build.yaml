@@ -298,14 +298,7 @@ jobs:
       - name: Pin Rust version in upstream feed
         run: |
           sed -i '/^RUST_VERSION/ d' feeds/packages/lang/rust/Makefile
-          echo "RUST_VERSION:=1.68.0" >> feeds/packages/lang/rust/Makefile
-          make package/lang/rust/clean
-          rm -rf dl/rustc-*
-          
-      - name: Pin Rust version in upstream feed
-        run: |
-          sed -i '/^RUST_VERSION/ d' feeds/packages/lang/rust/Makefile
-          echo "RUST_VERSION:=1.68.0" >> feeds/packages/lang/rust/Makefile
+          echo "RUST_VERSION:=1.85.0" >> feeds/packages/lang/rust/Makefile
           make package/lang/rust/clean
           rm -rf dl/rustc-*
           
