@@ -300,8 +300,8 @@ jobs:
           # sed -i '/^RUST_VERSION/ d' feeds/packages/lang/rust/Makefile
           # echo "RUST_VERSION:=1.85.0" >> feeds/packages/lang/rust/Makefile
           sed -i '/^llvm.download-ci-llvm/ d' feeds/packages/lang/rust/Makefile
-          make package/lang/rust/clean
-          rm -rf dl/rustc-* build_dir/host/rustc-*
+          # make package/lang/rust/clean
+          # rm -rf dl/rustc-* build_dir/host/rustc-*
           
       - name: Build the firmware image
         run: make world -j$(nproc) V=sc
