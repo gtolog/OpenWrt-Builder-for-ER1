@@ -8,7 +8,7 @@ on:
 
 env:
   REMOTE_REPOSITORY: qosmio/openwrt-ipq
-  REMOTE_BRANCH: 24.10-nss
+  REMOTE_BRANCH: 25.12-nss
   TARGET: qualcommax
   SUBTARGET: ipq60xx
   DEVICE: er1
