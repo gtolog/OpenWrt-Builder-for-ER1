@@ -8,12 +8,10 @@ on:
 
 env:
   REMOTE_REPOSITORY: qosmio/openwrt-ipq
-  # REMOTE_REPOSITORY: AgustinLorenzo/openwrt
   REMOTE_BRANCH: 24.10-nss
   TARGET: qualcommax
   SUBTARGET: ipq60xx
   DEVICE: er1
-  # REMOTE_BRANCH: main_nss
   CONFIG_FILE: build.config
   CUSTOM_FILES_PATH: files/
   RELEASE_PREFIX: openwrt-qualcommax-ipq60xx
@@ -169,6 +167,7 @@ jobs:
           git clone --depth=1 --single-branch https://github.com/sbwml/luci-app-airconnect package/extra-packages/luci-app-airconnect
           git clone --depth=1 --single-branch https://github.com/sbwml/package_kernel_r8152 package/extra-packages/package_kernel_r8152
           git clone --depth=1 --single-branch https://github.com/gtolog/openwrt-msd_lite package/extra-packages/openwrt-msd_lite
+          git clone --depth=1 --single-branch https://github.com/qosmio/packages-extra package/extra-packages/luci-mod-status-nss
 
           # Clone only msd_lite from immortalwrt without unnecessary files
           # git clone --depth=1 --filter=blob:none --sparse --single-branch --no-checkout https://github.com/immortalwrt/packages.git package/extra-packages/immortalwrt-packages
@@ -332,7 +331,7 @@ jobs:
         run: tar xf ${{ env.SUBTARGET }}-images.tar
       
       - name: Get current date
-        run: echo "RELEASE_DATE=$(date +%F)" >> $GITHUB_ENV
+        run: echo "RELEASE_DATE=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
       
       - name: Create release
         uses: softprops/action-gh-release@v2
@@ -349,7 +348,7 @@ jobs:
       - name: Clean up old releases
         uses: dev-drprasad/delete-older-releases@master
         with:
-          keep_latest: 2
+          keep_latest: 5
           delete_tags: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
