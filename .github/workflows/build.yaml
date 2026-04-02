@@ -77,13 +77,13 @@ jobs:
     
           # Compare commit SHAs and set new_commits output
           if [[ "$latest_commit_sha" != "$last_built_commit_sha" && -n "$latest_commit_sha" ]]; then
-            echo "nss_packages_repo_new_commits=true" >> $GITHUB_OUTPUT
+            echo "new_commits=true" >> $GITHUB_OUTPUT
           else
-            echo "nss_packages_repo_new_commits=false" >> $GITHUB_OUTPUT
+            echo "new_commits=false" >> $GITHUB_OUTPUT
           fi
     
           # Output latest commit sha for future steps
-          echo "nss_packages_repo_latest_commit_sha=$latest_commit_sha" >> $GITHUB_OUTPUT
+          echo "latest_commit_sha=$latest_commit_sha" >> $GITHUB_OUTPUT
           
   build:
     name: Build OpenWrt
