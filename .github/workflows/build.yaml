@@ -26,14 +26,14 @@ jobs:
     name: Check for new commits
     runs-on: ubuntu-24.04
     outputs:
-      new_commits: ${{ steps.check_new_commits.outputs.new_commits }}
-      latest_commit_sha: ${{ steps.check_new_commits.outputs.latest_commit_sha }}
-      nss_packages_repo_new_commits: ${{ steps.check_nss_packages_repo_new_commits.outputs.new_commits }}
-      nss_packages_repo_latest_commit_sha: ${{ steps.check_nss_packages_repo_new_commits.outputs.latest_commit_sha }}
+      remote_new_commits: ${{ steps.check_remote_new_commits.outputs.new_commits }}
+      remote_latest_commit_sha: ${{ steps.check_remote_new_commits.outputs.latest_commit_sha }}
+      nss_packages_new_commits: ${{ steps.check_nss_packages_new_commits.outputs.new_commits }}
+      nss_packages_latest_commit_sha: ${{ steps.check_nss_packages_new_commits.outputs.latest_commit_sha }}
       self_new_commits: ${{ steps.check_self_new_commits.outputs.new_commits }}
     steps:
-      - name: Check for new commits
-        id: check_new_commits
+      - name: Check for new commits in Remote Repository
+        id: check_remote_new_commits
         run: |
           # Get the latest commit sha from the remote repository
           latest_commit_sha=$(curl -sL \
@@ -60,7 +60,7 @@ jobs:
           echo "latest_commit_sha=$latest_commit_sha" >> $GITHUB_OUTPUT
 
       - name: Check for new commits in NSS Packages Repository
-        id: check_nss_packages_repo_new_commits
+        id: check_nss_packages_new_commits
         run: |
           # Get the latest commit sha from the NSS packages repository
           latest_commit_sha=$(curl -sL \
@@ -109,7 +109,7 @@ jobs:
   build:
     name: Build OpenWrt
     needs: check_commits
-    if: needs.check_commits.outputs.new_commits == 'true' || needs.check_commits.outputs.nss_packages_repo_new_commits == 'true' || needs.check_commits.outputs.self_new_commits == 'true' || github.event_name == 'workflow_dispatch'
+    if: needs.check_commits.outputs.remote_new_commits == 'true' || needs.check_commits.outputs.nss_packages_new_commits == 'true' || needs.check_commits.outputs.self_new_commits == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
       #- name: Debug output values
@@ -372,8 +372,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
             Updated prebuilt images ${{ env.REMOTE_BRANCH }} ${{ env.RELEASE_DATE }}
-            Remote Commit: ${{ needs.check_commits.outputs.latest_commit_sha }}
-            NSS Packages Commit: ${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
+            Remote Commit: ${{ needs.check_commits.outputs.remote_latest_commit_sha }}
+            NSS Packages Commit: ${{ needs.check_commits.outputs.nss_packages_latest_commit_sha }}
             Self Commit: ${{ github.sha }}
       
       - name: Clean up old releases
