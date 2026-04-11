@@ -211,7 +211,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.ccache
-          key: ccache-kernel-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
+          key: ccache-kernel-${{ runner.os }}-${{ needs.check_commits.outputs.remote_latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_latest_commit_sha }}
           #restore-keys: |
           #  ccache-kernel-${{ runner.os }}-
 
@@ -222,7 +222,7 @@ jobs:
           path: |
             ${{ github.workspace }}/staging_dir/host
             ${{ github.workspace }}/build_dir/host
-          key: host-tools-${{ runner.os }}-${{ needs.check_commits.outputs.latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_repo_latest_commit_sha }}
+          key: host-tools-${{ runner.os }}-${{ needs.check_commits.outputs.remote_latest_commit_sha }}-${{ needs.check_commits.outputs.nss_packages_latest_commit_sha }}
           #restore-keys: |
           #  host-tools-${{ runner.os }}-
           
